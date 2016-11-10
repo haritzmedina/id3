@@ -41,11 +41,11 @@
 						callback();
 					});
 				});
-			break;
+				break;
 			case Reader.OPEN_FILE:
 				this.size = this.file.size;
 				callback();
-			break;
+				break;
 			default:
 				this.ajax(
 					{
@@ -60,7 +60,7 @@
 						callback();
 					}
 				);
-			break;
+				break;
 		}
 	};
 
@@ -210,7 +210,7 @@
 			if(raw) {
 				return str;
 			}
-			return decodeURIComponent(escape(str));
+			return str;
 		}
 	};
 
@@ -228,9 +228,14 @@
 			length += this.byteLength;
 		}
 		if(bom) {
-			var bomInt = this.getUint16(offset);
-			if(bomInt === 0xFFFE) {
-				littleEndian = true;
+			try{
+				var bomInt = this.getUint16(offset);
+				if(bomInt === 0xFFFE) {
+					littleEndian = true;
+				}
+			}
+			catch(e){
+
 			}
 			offset += 2;
 			length -= 2;
@@ -256,7 +261,7 @@
 		if(useBuffer) {
 			return (new Buffer(str)).toString();
 		} else {
-			return decodeURIComponent(escape(str));
+			return str;
 		}
 	};
 
@@ -298,7 +303,7 @@
 		};
 		if(typeof opts === 'string') {
 			opts = {file: opts, type: id3.OPEN_URI};
-		} else if(typeof window !== 'undefined' && window.File && opts instanceof window.File) {
+		} else if(typeof window !== 'undefined' && window.File ){//&& opts instanceof window.File) {
 			opts = {file: opts, type: id3.OPEN_FILE};
 		}
 		for(var k in opts) {
@@ -693,8 +698,13 @@
 						}
 						i++;
 					} else {
-						if(dv.getUint8(i) === 0x00) {
-							variableStart = i + 1;
+						try{
+							if(dv.getUint8(i) === 0x00) {
+								variableStart = i + 1;
+								break;
+							}
+						}
+						catch(e){
 							break;
 						}
 					}
@@ -812,17 +822,17 @@
 					artist: null,
 					year: null,
 					v1: {
-							title: null,
-							artist: null,
-							album: null,
-							year: null,
-							comment: null,
-							track: null,
-							version: 1.0
-						},
+						title: null,
+						artist: null,
+						album: null,
+						year: null,
+						comment: null,
+						track: null,
+						version: 1.0
+					},
 					v2: {
-							version: [null, null]
-						}
+						version: [null, null]
+					}
 				},
 				processed = {
 					v1: false,
